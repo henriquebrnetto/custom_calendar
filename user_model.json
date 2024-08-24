@@ -1,0 +1,12 @@
+{
+    "name" : "",
+    "email" : "",
+    "birth_date" : "",
+    "psswd" : "",
+    "job_position" : "",
+    "company" : "",
+    "tasks" : [],
+    "rec_code" : 0,
+    "register_date" : "",
+    "auth" : ""
+}
