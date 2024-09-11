@@ -1,8 +1,8 @@
 from flask import Flask, request
 from flask_cors import CORS
-from dotenv import dotenv_values
 from pymongo import MongoClient
 from users import *
+from events import *
 from auth import config
 
 app = Flask("Custom Calendar")
@@ -24,12 +24,12 @@ def home():
 @app.route('/login', methods=['GET'])
 def login():
     auth = request.authorization
-    ret = '' #check_class(auth.username, auth.password, db)
-    
-    if ret != None:
-        return {'message' : 'User found successfully.', "data" : ret}, 200
+    user, code = get_user(db, kwargs={'email' : auth.username, 'psswd' : hash_password(auth.password)})
+
+    if code == 200:
+        return {'message' : 'User found successfully.', "data" : user}, 200
     else:
-        return {'message' : 'User not found.', "data" : ret}, 400
+        return {'message' : 'User not found.', "data" : user}, 400
     
 #--------------------------------- USERS ---------------------------------
 
@@ -37,7 +37,7 @@ def login():
 @app.route('/users/<string:id>', methods=['GET'])
 def read_users(id=None):
     kwargs = request.args.to_dict()
-    return get_users(db, id, kwargs)
+    return get_user(db, id, kwargs)
 
 @app.route('/users', methods=['POST'])
 def post_users():
@@ -57,11 +57,16 @@ def delete_users(id):
 @app.route('/events', methods=['GET'])
 @app.route('/events/<string:id>', methods=['GET'])
 def read_events(id=None):
-    return
+    kwargs = request.args.to_dict()
+    #GARANTIR QUE ESTÁ LOGADO
+    user = (request.authorization.username, request.authorization.password) if request.authorization else None
+    return get_events(db, user, id, kwargs)
 
 @app.route('/events', methods=['POST'])
 def post_events():
-    return
+    #GARANTIR QUE ESTÁ LOGADO
+    user = (request.authorization.username, request.authorization.password) if request.authorization else None
+    return post_event(db, request.json, user)
 
 @app.route('/events/<string:id>', methods=['PUT'])
 def put_events(id):

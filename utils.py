@@ -12,7 +12,7 @@ def check_email(email):
 
 def check_date(d, tz = None):
     if type(d) not in [date, datetime]:
-        d = datetime.strptime(d, "%d/%m/%Y")
+        d = datetime.strptime(d, "%d/%m/%Y").isoformat()
     
     return d
 

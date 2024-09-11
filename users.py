@@ -4,19 +4,8 @@ from datetime import datetime
 from bson import ObjectId
 import bson
 
-"""
-db.users.find_one(filter={})
-db.users.find({})
-
-db.users.update_one({'_id': id}, {'$set': user})
-
-db.users.insert_one(user)
-
-db.users.delete_one(filter)
-"""
-
 #GET all users or by ID
-def get_users(db, id=None, kwargs={}):
+def get_user(db, id=None, kwargs={}):
 
     try:
         filter = {'_id': ObjectId(id)} if id else {}
@@ -25,7 +14,6 @@ def get_users(db, id=None, kwargs={}):
     
     if kwargs:
         filter.update(kwargs)
-
     users = remove_objId(db.users.find(filter))
 
     if users == []:
@@ -44,7 +32,7 @@ def post_user(db, user):
         del user['psswd']
         return {"message": "Email inválido.", 'data' : user}, 400
     
-    if get_users(db, kwargs={'email' : user['email']})[1] == 200:
+    if get_user(db, kwargs={'email' : user['email']})[1] == 200:
         del user['psswd']
         return {"message": "Email já cadastrado.", 'data' : user}, 409
     
@@ -75,7 +63,7 @@ def post_user(db, user):
     return {'message' : 'Usuário adicionado com sucesso.', 'data' : remove_objId(user)}, 201
 
 def del_user(db, id, logged_username=None):
-    user = get_users(db, id)[0]['data']
+    user = get_user(db, id)[0]['data']
     if user == []:
         return {"message":'User not found.', 'data' : id}, 404
     
@@ -99,7 +87,7 @@ def del_user(db, id, logged_username=None):
 
 def edit_user(db, id, updates):
     id = ObjectId(id)
-    user, code = get_users(db, id)
+    user, code = get_user(db, id)
     user = user['data']
     if code != 200:
         return {"message":'User not found.', 'data' : []}, 404
